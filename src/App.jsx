@@ -1,5 +1,26 @@
 const contentNode = document.getElementById('contents');
 
+const issues = [
+    {
+        id: 1, 
+        status: 'Open', 
+        owner: 'Ravan',
+        created: new Date('2016-08-15'), 
+        effort: 5, 
+        completionDate: undefined,
+        title: 'Error in console when clicking Add',
+    },
+    {
+        id: 2, 
+        status: 'Assigned', 
+        owner: 'Eddie',
+        created: new Date('2016-08-16'), 
+        effort: 14,
+        completionDate: new Date('2016-08-30'),
+        title: 'Missing bottom border on panel',
+    },
+];
+
 class IssueFilter extends React.Component {
     render() {
     return (
@@ -11,38 +32,50 @@ class IssueFilter extends React.Component {
 class IssueTable extends React.Component {
     render() {
     const borderedStyle = {border: "1px solid silver", padding: 6};
+    const mapIssues = issues.map(issue => <IssueRow key={issue.id} issue={issue} />);
     return (
         <table style={{borderCollapse: "collapse"}}>
             <thead>
-            <tr>
-            <th style={borderedStyle}>Id</th>
-            <th style={borderedStyle}>Title</th>
-            </tr>
+                <tr>
+                    <th style={borderedStyle}>Id</th>
+                    <th style={borderedStyle}>Status</th>
+                    <th style={borderedStyle}>Owner</th>
+                    <th style={borderedStyle}>Created</th>
+                    <th style={borderedStyle}>Effort</th>
+                    <th style={borderedStyle}>Completion Date</th>
+                    <th style={borderedStyle}>Title</th>
+                </tr>
             </thead>
             <tbody>
-            <IssueRow issue_id={1}>Error in console when clicking Add</IssueRow>
-            <IssueRow issue_id={2}>Missing bottom <b>Border</b> on panel</IssueRow>
+                {mapIssues}
             </tbody>
         </table>
-        )
-    }
-}
-
-class IssueAdd extends React.Component {
-    render() {
-        return <div>This is a placeholder for an Issue Add entry form.</div>
+        );
     }
 }
 
 class IssueRow extends React.Component {
     render() {
     const borderedStyle = {border: "1px solid silver", padding: 4};
+    const issue = this.props.issue;
     return (
         <tr>
-            <td style={borderedStyle}>{this.props.issue_id}</td>
-            <td style={borderedStyle}>{this.props.children}</td>
+            <td>{issue.id}</td>
+            <td>{issue.status}</td>
+            <td>{issue.owner}</td>
+            <td>{issue.created.toDateString()}</td>
+            <td>{issue.effort}</td>
         </tr>
-        )
+        );
+    }
+}
+
+
+class IssueAdd extends React.Component {
+    render() {
+        return (
+        <div>This is a placeholder for an Issue Add entry form.</div>
+        );
     }
 }
 
@@ -55,13 +88,10 @@ class IssueList extends React.Component {
                 <IssueTable />
                 <hr />
                 <IssueAdd />
-                <hr />
-                <IssueRow />
             </div>
-    )
+        );
     }
 }
-
 
 
 ReactDOM.render(<IssueList />, contentNode);
