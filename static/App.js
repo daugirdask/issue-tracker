@@ -126,15 +126,32 @@ class IssueRow extends React.Component {
 };
 
 class IssueAdd extends React.Component {
+    constructor() {
+        super();
+    }
+
+    handlesubmit(e) {
+        e.preventDefault();
+        this.props.addIssue();
+        let form = document.forms.issueAdd;
+        form.owner.value = '';
+        form.title.value = '';
+    }
+
     render() {
         return React.createElement(
             'div',
             null,
-            React.createElement('input', { className: 'inputValue' }),
             React.createElement(
-                'button',
-                null,
-                'Add'
+                'form',
+                { name: 'issueAdd', onSubmit: this.handlesubmit.bind(this) },
+                React.createElement('input', { type: 'text', name: 'owner', placeholder: 'Owner', className: 'input-1' }),
+                React.createElement('input', { type: 'text', name: 'title', placeholder: 'Title', className: 'input-2' }),
+                React.createElement(
+                    'button',
+                    null,
+                    'Add'
+                )
             )
         );
     }
@@ -143,24 +160,32 @@ class IssueAdd extends React.Component {
 class IssueList extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { issueList: issues };
-        setTimeout(this.testIssue.bind(this), 200);
+        this.state = { issueList: [] };
+        this.addIssue.bind(this);
     }
 
-    testIssue() {
-        let selectInput = document.querySelector('.inputValue');
+    componentDidMount() {
+        this.loadData();
+    }
+
+    loadData() {
+        this.setState({ issueList: issues });
+    }
+
+    addIssue() {
+        let selectInput1 = document.querySelector('.input-1');
+        let selectInput2 = document.querySelector('.input-2');
         let newIssue = {
-            id: 0,
+            id: issues.length + 1,
             status: 'Open',
-            owner: 'Test',
+            owner: selectInput1.value,
             created: new Date(),
             effort: 0,
             completionDate: '',
-            title: selectInput.value
+            title: selectInput2.value
         };
         issues.push(newIssue);
         this.setState({ issueList: newIssue });
-        console.log(this.state.issueList);
     }
 
     render() {
@@ -176,7 +201,7 @@ class IssueList extends React.Component {
             React.createElement('hr', null),
             React.createElement(IssueTable, null),
             React.createElement('hr', null),
-            React.createElement(IssueAdd, null)
+            React.createElement(IssueAdd, { addIssue: this.addIssue.bind(this) })
         );
     }
 };
