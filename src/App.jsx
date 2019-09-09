@@ -1,29 +1,17 @@
 const contentNode = document.getElementById('contents');
 
-const issues = [
-  {
-      id: 1, status: 'Open', owner: 'Ravan',
-      created: new Date('2016-08-15'), effort: 5, completionDate: undefined,
-      title: 'Error in console when clicking Add',
-  },
-  {
-      id: 2, status: 'Assigned', owner: 'Eddie',
-      created: new Date('2016-08-16'), effort: 14,
-      completionDate: new Date('2016-08-30'),
-      title: 'Missing bottom border on panel',
-  }
-];
-
 class IssueFilter extends React.Component {
   render() {
   return (
-    <div>This is a placeholder for the Issue Filter.</div>
-  )
+    <div>
+      This is a placeholder for the Issue Filter.
+    </div>
+    )
   }
 };
 
-const IssueTable = () => {
-  const mapIssues = issues.map(issue => 
+function IssueTable(props) {
+  const mapIssues = props.issueList.map(issue => 
   <IssueRow key={issue.id} issue={issue} />);
   return (
     <table>
@@ -42,7 +30,7 @@ const IssueTable = () => {
           {mapIssues}
       </tbody>
     </table>
-  );
+  )
 };
 
 const IssueRow = (props) => (
@@ -60,7 +48,7 @@ const IssueRow = (props) => (
 
 class IssueAdd extends React.Component {
   constructor() {
-    
+    super();
   }
 
   handlesubmit(e) {
@@ -88,7 +76,7 @@ class IssueList extends React.Component {
   constructor(props) {
     super(props);
     this.state = { issueList: [] };
-    this.addIssue.bind(this);
+    this.addIssue = this.addIssue.bind(this);
   }
 
   componentDidMount() {
@@ -96,36 +84,48 @@ class IssueList extends React.Component {
   }
 
   loadData() {
-    this.setState({ issueList: issues });
+    fetch('/api/issues')
+    .then(response => response.json())
+    .then(data => {
+      console.log('Total count of records:', data._metadata.totalCount);
+      data.records.forEach(issue => {
+        issue.created = new Date(issue.created);
+        if (issue.completionDate)
+          issue.completionDate = new Date(issue.completionDate);
+      });
+      this.setState({ issueList: data.records });
+    }).catch(err => {
+      console.log(err);
+    })
   }
 
   addIssue() {
     let selectInput1 = document.querySelector('.input-1');
     let selectInput2 = document.querySelector('.input-2');
     let newIssue = {
-        id: issues.length + 1,
+        id: this.state.issueList.length + 1,
         status: 'Open',
         owner: selectInput1.value,
         created: new Date(),
         effort: 0,
         completionDate: '',
         title: selectInput2.value
-    }
-    issues.push(newIssue);
-    this.setState({ issueList: newIssue });
+    };
+    this.state.issueList.push(newIssue);
+    this.setState({ issueList: this.state.issueList });
   }
 
   render() {
-    return (
-      <div>
-          <h1>Issue Tracker</h1>
-          <IssueFilter />
-          <hr />
-          <IssueTable />
-          <hr />
-          <IssueAdd addIssue={this.addIssue.bind(this)}/>
-      </div>
-      )
+  return (
+    <div>
+        <h1>Issue Tracker</h1>
+        <IssueFilter />
+        <hr />
+        <IssueTable issueList={this.state.issueList} />
+        <hr />
+        <IssueAdd addIssue={this.addIssue} />
+    </div>
+    )
   }
 };
 
